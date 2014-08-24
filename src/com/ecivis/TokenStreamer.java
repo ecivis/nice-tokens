@@ -1,7 +1,6 @@
 package com.ecivis;
 
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 
 public final class TokenStreamer {
@@ -9,6 +8,8 @@ public final class TokenStreamer {
 	public static final int BASE36 = 1;
 	public static final int BASE64 = 2;
 	public static final int BASE64_URLSAFE = 3;
+	public static final int MIN_TOKEN_BYTE_SPACE = 1;
+	public static final int MAX_TOKEN_BYTE_SPACE = 32;
 
 	private SecureRandom sr;
 
@@ -18,10 +19,9 @@ public final class TokenStreamer {
 
 	public TokenStreamer() {
 		try {
-			sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
+			// Apparently, it's bad practice to specify a provider since it would override user configuration.
+			sr = SecureRandom.getInstance("SHA1PRNG");
 		} catch (NoSuchAlgorithmException e) {
-			System.out.print(e.getMessage());
-		} catch (NoSuchProviderException e) {
 			System.out.print(e.getMessage());
 		}
 	}
@@ -37,7 +37,7 @@ public final class TokenStreamer {
 		} else if (this.encoding == BASE64_URLSAFE) {
 			return BareMinimumEncoder.encodeBase64(randomBytes, true);
 		} else {
-			throw new Exception("Invalid encoding selected.");
+			throw new Exception("Inexplicably, an invalid encoding was specified.");
 		}
 	}
 
@@ -62,20 +62,23 @@ public final class TokenStreamer {
 		sr.setSeed(seed);
 	}
 
-	public int getEncoding() {
-		return encoding;
+	/*
+	 * There's probably a good way to check whether this is valid without hard coding this.
+	 */
+	public void setEncoding(int encoding) throws Exception {
+		if (encoding >= BASE36 && encoding <= BASE64_URLSAFE) {
+			this.encoding = encoding;
+		} else {
+			throw new Exception("The specified encoding type is invalid.");
+		}
 	}
 
-	public void setEncoding(int encoding) {
-		this.encoding = encoding;
-	}
-
-	public int getTokenByteSpace() {
-		return tokenByteSpace;
-	}
-
-	public void setTokenByteSpace(int tokenByteSpace) {
-		this.tokenByteSpace = tokenByteSpace;
+	public void setTokenByteSpace(int tokenByteSpace) throws Exception {
+		if (tokenByteSpace >= MIN_TOKEN_BYTE_SPACE && tokenByteSpace <= MAX_TOKEN_BYTE_SPACE) {
+			this.tokenByteSpace = tokenByteSpace;
+		} else {
+			throw new Exception("The tokenByteSpace specified is out of bounds.");
+		}
 	}
 
 }
