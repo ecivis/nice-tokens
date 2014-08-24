@@ -1,19 +1,22 @@
 Nice Tokens
 ===========
 
-This is a tiny Java project with goal of creating tokens that have the following properties:
-* varying length
+This is a tiny Java project with purpose of generating tokens that have the following properties:
+* Varying length
 
-    In contrast to hash output with a constant length, _nice tokens_ are expressed with only as many character as required to represent the token value. The actual length is random and depends on the number of bytes used to generate a random value -- what I call the "token byte space." Cryptographers probably have a proper name for this, and perhaps they'll chime in.
-* properly randomized
+    In contrast to hash output or a UUID with a constant length, _nice tokens_ are expressed with only as many character as required to represent the token value. The actual length is random and depends on the number of bytes used to generate a random value -- what I call the "token byte space." Cryptographers probably have a proper name for this, and perhaps they'll chime in.
+* Properly randomized
 
     The PRNG used in the project is the `SHA1PRNG` algorithm from the default provider, accessed using `SecureRandom`. The implementation from the Sun provider is fast enough and well seeded with an OS entropy source. It's good enough.
-* short
+* Short
 
     Given a token byte space of 8 bytes, resulting token values encoded with base 36 won't exceed 13 characters. They could be more compactly encoded with Base64, that has some other considerations.
-* web friendly
+* Web friendly
 
     Two built-in encoders (`BASE36` and `BASE64_URLSAFE`) produce token strings that can be placed in a URL without worry.
+
+The itch Nice Token serves to scratch is as a source of tokens for a short URL redirection service. A batch of tokens are created in advance, validated for uniqueness, and saved for future use. In practice, a big batch of tokens are sent as one argument via JDBC to a stored procedure that maintains the token pool. The redirection service then issues one token as requested, updating the values for destination, click count, expiration, and so forth.
+
 
 Usage
 -----
@@ -36,4 +39,18 @@ java -jar ecivis-nice-tokens-0.1.jar base36 8 10
 Dependencies
 ------------
 
-I've tried to make Nice Tokens without any external dependencies. In my testing, a stock Java 7 install on OS X worked without supplying any additional libraries.
+I've tried to make Nice Tokens without any external dependencies. In my testing, a stock Java 7 install on OS X worked without supplying any additional libraries. Please try it out and report any issues found.
+
+Details
+-------
+
+I've tried to write a tool that works properly and is simple to use for a variety of purposes. However, there are some implementation details that I think are important. The `TokenStreamer` works in two basic ways after some quantity of random bytes has been fetched:
+* Building a `BigInteger` and expressing the number to a radix of 36.
+* Transforming the bytes array into a Base64 stream
+
+In the first case, we lose one bit of token byte space due to discarding the sign in the leftmost position that makes the effective token byte space half as big. It's an insignificant difference when choosing more than a few bytes, but I feel obligated to mention it. There is probably a cool Java trick to get around this. In the operational mode where a byte array is converted straight to binary encoding, this bit loss does not happen.
+
+License
+-------
+
+This open source project is licensed as Apache License 2.0. 
