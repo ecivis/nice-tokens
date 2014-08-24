@@ -36,6 +36,12 @@ Viola. Now you have a comma-delimited list of tokens. You could do the same thin
 java -jar ecivis-nice-tokens-0.1.jar base36 8 10
 ```
 
+In both of the examples above, a list of tokens similar to the following is returned:
+
+```
+6k9legrunwsa,1qiy7g5njq8ym,wz3rj8mn5ma4,gysv0b5l9d45,1afqyi23rasue,nbc4zu5wg29i,1t4v0peumdxx9,wh8zjme38r9o,16dqdouyyzcp4,1seg03nmpcyai
+```
+
 Dependencies
 ------------
 
