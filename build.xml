@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project default="dist" name="NiceTokens">
+
+	<property name="project.dist" location="dist"/>
+	<property name="project.bin" location="bin"/>
+	<property name="project.src" location="src"/>
+	<property name="project.jar.base" value="ecivis-nice-tokens"/>
+	<property name="project.jar.version" value="0.1"/>
+
+	<target name="clean">
+		<mkdir dir="${project.bin}"/>
+		<delete>
+			<fileset dir="${project.bin}" includes="**/*.class"/>
+		</delete>
+	</target>
+	
+	<target name="compile">
+		<javac srcdir="${project.src}" destdir="${project.bin}" excludes="**/*Test.java" includeantruntime="no"/>
+	</target>
+	
+	<target name="dist">
+		<property name="jarfile" value="${project.dist}/${project.jar.base}-${project.jar.version}.jar"/>
+		<mkdir dir="${project.dist}"/>
+		<delete file="${jarfile}"/>
+        <jar destfile="${jarfile}">
+            <manifest>
+                <attribute name="Main-Class" value="com.ecivis.CommandLineInterface"/>
+                <attribute name="Class-Path" value="."/>
+            </manifest>
+            <fileset dir="${project.bin}">
+            	<exclude name=".*"/>
+            	<exclude name="**/*Test.class"/>
+            </fileset>
+        </jar>
+    </target>
+</project>
